@@ -1,0 +1,8 @@
+[
+    {
+        "modid": "knechtcraft.treepers",
+        "name": "Treepers",
+        "version": "1.0",
+        "description": "Stops Creepers from destroying blocks and plants trees instead."
+    }
+]
