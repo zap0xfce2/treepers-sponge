@@ -1,48 +1,39 @@
 package org.knechtcraft.sponge.treepers;
 
 import com.flowpowered.math.vector.Vector3i;
-import com.google.inject.Inject;
 import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.block.trait.BooleanTrait;
-import org.spongepowered.api.data.Property;
 import org.spongepowered.api.data.property.block.PassableProperty;
-import org.spongepowered.api.data.type.TreeType;
-import org.spongepowered.api.data.type.TreeTypes;
-import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.entity.living.monster.Creeper;
-import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.world.World;
-import org.spongepowered.api.world.WorldCreationSettings;
+import org.spongepowered.api.world.biome.BiomeGenerationSettings;
 import org.spongepowered.api.world.biome.BiomeType;
-import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.explosion.Explosion;
 import org.spongepowered.api.world.gen.PopulatorObject;
-import org.spongepowered.api.world.gen.type.BiomeTreeType;
+import org.spongepowered.api.world.gen.populator.Forest;
 import org.spongepowered.api.world.gen.type.BiomeTreeTypes;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-@Plugin(id = "knechtcraft.treepers", name = "Treepers", version = "1.0",
+@Plugin(id = "knechtcraft.treepers", name = "Treepers", version = "1.0", authors = "Knechtcraft", url = "github.com/Knechtcraft/treepers-sponge",
         description = "Stops Creepers from destroying blocks and plants trees instead.")
 public class Treepers {
 
     private static final boolean CREEPER_BREAKS_BLOCKS = false;
 
     private Random random;
+    private PopulatorObject fallbackTreePopulator;
 
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
+        fallbackTreePopulator = BiomeTreeTypes.OAK.getPopulatorObject();
         random = new Random();
     }
 
@@ -85,10 +76,20 @@ public class Treepers {
 
         Vector3i pos = new Vector3i(x, y, z);
         Vector3i below = new Vector3i(x, y - 1, z);
-        //BiomeType biome = event.getTargetWorld().getBiome(x, y);
 
+        //Evaluating the tree type, based on biome
         World world = event.getTargetWorld();
-        PopulatorObject populator = BiomeTreeTypes.OAK.getPopulatorObject();
+        BiomeType biome = world.getBiome(x, y);
+        BiomeGenerationSettings biomeSettings = world.getWorldGenerator().getBiomeSettings(biome);
+        List<Forest> forestPopulators = biomeSettings.getPopulators(Forest.class);
+
+        PopulatorObject populator;
+        try {
+            //There may be multiple tree types in one Biome. Get one per weighted random
+            populator = forestPopulators.isEmpty() ? fallbackTreePopulator : forestPopulators.get(0).getTypes().get(random).get(0);
+        } catch (Exception e) {
+            populator = fallbackTreePopulator;
+        }
 
         //if the explosion happened on level 0, set it to 1, so we can place a dirt block below
         if (y == 0) {
@@ -125,8 +126,12 @@ public class Treepers {
 
         }
 
-        //Replace block below with original Block (unless the tree was placed in mid-air)
-        if (blockBelow != null && !(treePlaced && blockBelow.getType() == BlockTypes.AIR)) {
+        //Replace block below with original Block (unless the tree was placed in mid-air or water)
+        if (blockBelow != null &&
+                !(treePlaced &&
+                        (blockBelow.getType() == BlockTypes.AIR ||
+                                blockBelow.getType() == BlockTypes.WATER ||
+                                blockBelow.getType() == BlockTypes.FLOWING_WATER))) {
             world.setBlock(below, blockBelow);
         }
     }
