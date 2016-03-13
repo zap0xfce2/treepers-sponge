@@ -17,7 +17,5 @@ Tired of cleaning up the result of a Creeper meeting an unalert player? Want to 
 The type of tree grown is determined by the current biome. 
 
 ## Changelog
+* **1.1**: Fixed biome fetching and y-Position check
 * **1.0**: Initial release.
-
-## Known Issues
-* Special forests like Roofed Forests and Birch Forests are not referenced by the Biome. In these cases, an Oak tree is grown. But hey, everybody likes Oak trees!
