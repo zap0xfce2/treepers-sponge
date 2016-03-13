@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-@Plugin(id = "knechtcraft.treepers", name = "Treepers", version = "1.0", authors = "Knechtcraft", url = "github.com/Knechtcraft/treepers-sponge",
+@Plugin(id = "knechtcraft.treepers", name = "Treepers", version = "1.0", authors = "Knechtcraft", url = "https://github.com/Knechtcraft/treepers-sponge",
         description = "Stops Creepers from destroying blocks and plants trees instead.")
 public class Treepers {
 
