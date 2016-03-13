@@ -74,9 +74,6 @@ public class Treepers {
         int y = event.getExplosion().getOrigin().getFloorY();
         int z = event.getExplosion().getOrigin().getFloorZ();
 
-        Vector3i pos = new Vector3i(x, y, z);
-        Vector3i below = new Vector3i(x, y - 1, z);
-
         //Evaluating the tree type, based on biome
         World world = event.getTargetWorld();
         BiomeType biome = world.getBiome(x, y);
@@ -95,6 +92,9 @@ public class Treepers {
         if (y == 0) {
             y = 1;
         }
+
+        Vector3i pos = new Vector3i(x, y, z);
+        Vector3i below = new Vector3i(x, y - 1, z);
 
         //set Dirt block below if possible (Trees cannot be placed without)
         BlockState blockBelow = world.containsBlock(below) ? world.getBlock(below) : null;
