@@ -76,7 +76,7 @@ public class Treepers {
 
         //Evaluating the tree type, based on biome
         World world = event.getTargetWorld();
-        BiomeType biome = world.getBiome(x, y);
+        BiomeType biome = world.getBiome(x, z);
         BiomeGenerationSettings biomeSettings = world.getWorldGenerator().getBiomeSettings(biome);
         List<Forest> forestPopulators = biomeSettings.getPopulators(Forest.class);
 
