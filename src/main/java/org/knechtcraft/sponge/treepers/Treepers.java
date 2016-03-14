@@ -2,11 +2,10 @@ package org.knechtcraft.sponge.treepers;
 
 import com.flowpowered.math.vector.Vector3i;
 import com.google.inject.Inject;
-import com.sun.istack.internal.logging.Logger;
-import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
+import org.slf4j.Logger;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.config.DefaultConfig;
@@ -49,7 +48,7 @@ public class Treepers {
         try {
             config = Config.MAPPER.bindToNew().populate(configLoader.load());
         } catch (ObjectMappingException e) {
-            logger.severe("Couldn't populate Config!", e);
+            logger.error("Couldn't populate Config!", e);
         }
     }
 
