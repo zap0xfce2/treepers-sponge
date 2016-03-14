@@ -1,8 +1,15 @@
 package org.knechtcraft.sponge.treepers;
 
 import com.flowpowered.math.vector.Vector3i;
+import com.google.inject.Inject;
+import com.sun.istack.internal.logging.Logger;
+import ninja.leaping.configurate.ConfigurationOptions;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.data.property.block.PassableProperty;
 import org.spongepowered.api.entity.living.monster.Creeper;
 import org.spongepowered.api.event.Listener;
@@ -18,27 +25,35 @@ import org.spongepowered.api.world.gen.PopulatorObject;
 import org.spongepowered.api.world.gen.populator.Forest;
 import org.spongepowered.api.world.gen.type.BiomeTreeTypes;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-@Plugin(id = "knechtcraft.treepers", name = "Treepers", version = "1.0", authors = "Knechtcraft", url = "https://github.com/Knechtcraft/treepers-sponge",
+@Plugin(id = "knechtcraft.treepers", name = "Treepers", version = "1.0", authors = "Knechtcraft",
+        url = "https://github.com/Knechtcraft/treepers-sponge",
         description = "Stops Creepers from destroying blocks and plants trees instead.")
 public class Treepers {
 
-    private static final boolean CREEPER_BREAKS_BLOCKS = false;
+    @DefaultConfig(sharedRoot = false) @Inject private ConfigurationLoader<CommentedConfigurationNode> configLoader;
+    @Inject private Logger logger;
 
     private Random random;
     private PopulatorObject fallbackTreePopulator;
+    private Config config;
 
-    @Listener
-    public void onServerStart(GameStartedServerEvent event) {
+    @Listener public void onServerStart(GameStartedServerEvent event) throws IOException {
         fallbackTreePopulator = BiomeTreeTypes.OAK.getPopulatorObject();
         random = new Random();
+
+        try {
+            config = Config.MAPPER.bindToNew().populate(configLoader.load());
+        } catch (ObjectMappingException e) {
+            logger.severe("Couldn't populate Config!", e);
+        }
     }
 
-    @Listener
-    public void onExplode(ExplosionEvent.Detonate event) {
+    @Listener public void onExplode(ExplosionEvent.Detonate event) {
         Cause cause = event.getCause();
         Object root = cause.root();
 
@@ -46,19 +61,19 @@ public class Treepers {
         boolean isCreeper = root instanceof Creeper;
         if (isCreeper) {
             preventExplosion(event);
-            plantTree(event);
+            if(config.PLANT_TREE)
+                plantTree(event);
         }
     }
 
     private void preventExplosion(ExplosionEvent.Detonate event) {
         //"Clone" explosion, as we cannot change the existing one?
         Explosion old = event.getExplosion();
-        Explosion newExplosion =
-                Explosion.builder()
-                        .from(old)
-                        .shouldBreakBlocks(CREEPER_BREAKS_BLOCKS)
-                        .sourceExplosive(null) //Do not check for a creeper in next Eventlistener Iteration
-                        .build();
+        Explosion newExplosion = Explosion.builder()
+                .from(old)
+                .shouldBreakBlocks(config.BREAK_BLOCKS)
+                .sourceExplosive(null) //Do not check for a creeper in next Eventlistener Iteration
+                .build();
 
         //Cancel default event...
         event.setCancelled(true);
@@ -127,11 +142,9 @@ public class Treepers {
         }
 
         //Replace block below with original Block (unless the tree was placed in mid-air or water)
-        if (blockBelow != null &&
-                !(treePlaced &&
-                        (blockBelow.getType() == BlockTypes.AIR ||
-                                blockBelow.getType() == BlockTypes.WATER ||
-                                blockBelow.getType() == BlockTypes.FLOWING_WATER))) {
+        if (blockBelow != null && !(treePlaced && (blockBelow.getType() == BlockTypes.AIR ||
+                blockBelow.getType() == BlockTypes.WATER ||
+                blockBelow.getType() == BlockTypes.FLOWING_WATER))) {
             world.setBlock(below, blockBelow);
         }
     }
