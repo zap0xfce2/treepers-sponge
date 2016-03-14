@@ -21,4 +21,8 @@ public class Config {
 
     @Setting(value = "PlantTree", comment = "Should the creeper explosion plant a tree.")
     public boolean PLANT_TREE = true;
+
+    @Setting(value = "ShowParticles", comment = "Should the explosion particles been shown. (NOTE: It seems that the methods provided in Sponge "
+            + "don't work yet)")
+    public boolean SHOW_PARTICLES = true;
 }

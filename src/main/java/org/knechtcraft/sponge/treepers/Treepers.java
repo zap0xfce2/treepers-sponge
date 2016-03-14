@@ -6,8 +6,12 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.args.GenericArguments;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.data.property.block.PassableProperty;
 import org.spongepowered.api.entity.living.monster.Creeper;
@@ -16,6 +20,8 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.biome.BiomeGenerationSettings;
 import org.spongepowered.api.world.biome.BiomeType;
@@ -45,14 +51,40 @@ public class Treepers {
         fallbackTreePopulator = BiomeTreeTypes.OAK.getPopulatorObject();
         random = new Random();
 
+        //Setup configuration
         try {
-            config = Config.MAPPER.bindToNew().populate(configLoader.load());
+            CommentedConfigurationNode node = configLoader.load();
+            config = Config.MAPPER.bindToNew().populate(node);
+            Config.MAPPER.bind(config).serialize(node);
+            configLoader.save(node);
         } catch (ObjectMappingException e) {
             logger.error("Couldn't populate Config!", e);
         }
+
+        //Reload command
+        CommandSpec reloadCommand = CommandSpec.builder().permission("treepers.reload").description(Text.of("Reloads the treepers config"))
+                .arguments(GenericArguments.literal(Text.of("reload"), "reload")).executor((src, args) -> {
+                    if (args.hasAny("reload")) {
+                        reloadConfig();
+                        src.sendMessage(Text.builder("[Treepers] Config Reloaded!").color(TextColors.GREEN).build());
+                    }
+                    return CommandResult.empty();
+                }).build();
+
+        Sponge.getCommandManager().register(this, reloadCommand, "treepers");
     }
 
-    @Listener public void onExplode(ExplosionEvent.Detonate event) {
+    public void reloadConfig() {
+        try {
+            config = Config.MAPPER.bindToNew().populate(configLoader.load());
+        } catch (ObjectMappingException e) {
+            logger.error("Couldn't repopulate Config!", e);
+        } catch (IOException e) {
+            logger.error("Couldn't open or didn't have access to config file!", e);
+        }
+    }
+
+    @Listener public void onExplode(ExplosionEvent.Pre event) {
         Cause cause = event.getCause();
         Object root = cause.root();
 
@@ -60,18 +92,20 @@ public class Treepers {
         boolean isCreeper = root instanceof Creeper;
         if (isCreeper) {
             preventExplosion(event);
-            if(config.PLANT_TREE)
+            if (config.PLANT_TREE) {
                 plantTree(event);
+            }
         }
     }
 
-    private void preventExplosion(ExplosionEvent.Detonate event) {
+    private void preventExplosion(ExplosionEvent.Pre event) {
         //"Clone" explosion, as we cannot change the existing one?
         Explosion old = event.getExplosion();
         Explosion newExplosion = Explosion.builder()
                 .from(old)
                 .shouldBreakBlocks(config.BREAK_BLOCKS)
-                .sourceExplosive(null) //Do not check for a creeper in next Eventlistener Iteration
+                .shouldPlaySmoke(config.SHOW_PARTICLES)
+                .sourceExplosive(null) //Do not check for a creeper in next Event listener Iteration
                 .build();
 
         //Cancel default event...
@@ -83,7 +117,7 @@ public class Treepers {
         ((Creeper) event.getCause().root()).remove();
     }
 
-    private void plantTree(ExplosionEvent.Detonate event) {
+    private void plantTree(ExplosionEvent.Pre event) {
         int x = event.getExplosion().getOrigin().getFloorX();
         int y = event.getExplosion().getOrigin().getFloorY();
         int z = event.getExplosion().getOrigin().getFloorZ();
