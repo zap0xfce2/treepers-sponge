@@ -1,4 +1,4 @@
-package org.knechtcraft.sponge.treepers;
+package org.felfio.sponge.treepers;
 
 import com.flowpowered.math.vector.Vector3i;
 import com.google.inject.Inject;
@@ -22,7 +22,6 @@ import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.BlockChangeFlag;
@@ -40,8 +39,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-@Plugin(id = "treepers", name = "Treepers", version = "5.1.3", authors = "Knechtcraft",
-        url = "https://github.com/Knechtcraft/treepers-sponge",
+@Plugin(id = "treepers", name = "Treepers", version = "5.1.3", authors = "Felfio",
+        url = "https://github.com/Felfio/treepers-sponge",
         description = "Stops Creepers from destroying blocks and plants trees instead.")
 public class Treepers {
 

@@ -1,4 +1,4 @@
-package org.knechtcraft.sponge.treepers;
+package org.felfio.sponge.treepers;
 
 import ninja.leaping.configurate.objectmapping.ObjectMapper;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
