@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-@Plugin(id = "knechtcraft.treepers", name = "Treepers", version = "5.1.2", authors = "Knechtcraft",
+@Plugin(id = "treepers", name = "Treepers", version = "5.1.3", authors = "Knechtcraft",
         url = "https://github.com/Knechtcraft/treepers-sponge",
         description = "Stops Creepers from destroying blocks and plants trees instead.")
 public class Treepers {
@@ -126,7 +126,8 @@ public class Treepers {
         //Cancel default event...
         event.setCancelled(true);
         //...but trigger new event
-        newExplosion.getWorld().triggerExplosion(newExplosion);
+        Cause genericCause = Cause.of(NamedCause.owner(container));
+        newExplosion.getWorld().triggerExplosion(newExplosion, genericCause);
 
         //Remove the creeper (as the default event is canceled);
         ((Creeper) event.getCause().root()).remove();
