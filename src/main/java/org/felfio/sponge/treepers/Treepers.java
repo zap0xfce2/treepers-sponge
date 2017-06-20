@@ -39,8 +39,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-@Plugin(id = "treepers", name = "Treepers", version = "5.1.3", authors = "Felfio",
-        url = "https://github.com/Felfio/treepers-sponge",
+@Plugin(id = "treepers", name = "Treepers [ZPX M0d]", version = "5.1.3 M0d-V1", authors = "Felfio, Zap0xfce2",
+        url = "https://github.com/zap0xfce2/treepers-sponge",
         description = "Stops Creepers from destroying blocks and plants trees instead.")
 public class Treepers {
 
@@ -105,9 +105,15 @@ public class Treepers {
         //Did a creeper directly cause this ExplosionEvent?
         boolean isCreeper = root instanceof Creeper;
         if (isCreeper) {
-            preventExplosion(event);
-            if (config.PLANT_TREE) {
-                plantTree(event);
+            // Treepers or Creepers?
+            int max = 100;
+            int min = 0;
+            int TreeperChance = random.nextInt(max - min + 1) + min;
+            if (config.TREEPER_CHANCE >= TreeperChance) {
+                preventExplosion(event);
+                if (config.PLANT_TREE) {
+                    plantTree(event);
+                }
             }
         }
     }
@@ -140,7 +146,7 @@ public class Treepers {
 
         //Evaluating the tree type, based on biome
         World world = event.getTargetWorld();
-        BiomeType biome = world.getBiome(x, z);
+        BiomeType biome = world.getBiome(x, y, z);
         BiomeGenerationSettings biomeSettings = world.getWorldGenerator().getBiomeSettings(biome);
         List<Forest> forestPopulators = biomeSettings.getPopulators(Forest.class);
 

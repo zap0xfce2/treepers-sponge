@@ -1,5 +1,5 @@
 group 'org.felfio.sponge'
-version '5.1.3'
+version '5.1.3 M0d-V1'
 
 apply plugin: 'java'
 
@@ -12,5 +12,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.spongepowered:spongeapi:5.0.0-SNAPSHOT'
+    compile 'org.spongepowered:spongeapi:5.1.0-shaded'
+    compile 'ninja.leaping.configurate:configurate-hocon:3.3'
+    compile 'com.flowpowered:flow-math-1.0.3-javadoc'
 }
