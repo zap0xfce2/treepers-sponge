@@ -1,7 +1,7 @@
 # Treepers (for Sponge)
 A Sponge plugin for Minecraft. Stops Creepers from destroying blocks and plants a tree instead.
 
-**Current Version API 5.0.0:** [5.1.3 M0d-V1 (download)](https://raw.githubusercontent.com/zap0xfce2/treepers-sponge/master/release/Treepers-5.1.3-ZPX-M0d-V1.jar)
+**Current Version API 5.1.0:** [5.1.3 M0d-V1 (download)](https://raw.githubusercontent.com/zap0xfce2/treepers-sponge/master/release/Treepers-5.1.3-ZPX-M0d-V1.jar)
 
 ## Description
 Tired of cleaning up the result of a Creeper meeting an unalert player? Want to save your precioussSSsssSssSS things? But still want to make encountering these creatures remarkable?
