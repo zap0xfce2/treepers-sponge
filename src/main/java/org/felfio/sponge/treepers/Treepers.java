@@ -17,14 +17,12 @@ import org.spongepowered.api.data.property.block.PassableProperty;
 import org.spongepowered.api.entity.living.monster.Creeper;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.world.BlockChangeFlag;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.biome.BiomeGenerationSettings;
@@ -39,7 +37,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-@Plugin(id = "treepers", name = "Treepers [ZPX M0d]", version = "5.1.3 M0d-V1", authors = "Felfio, Zap0xfce2",
+@Plugin(id = "treepers", name = "Treepers [ZPX M0d]", version = "7.2.0", authors = "Felfio, Zap0xfce2",
         url = "https://github.com/zap0xfce2/treepers-sponge",
         description = "Stops Creepers from destroying blocks and plants trees instead.")
 public class Treepers {
@@ -131,8 +129,7 @@ public class Treepers {
         //Cancel default event...
         event.setCancelled(true);
         //...but trigger new event
-        Cause genericCause = Cause.of(NamedCause.owner(container));
-        newExplosion.getWorld().triggerExplosion(newExplosion, genericCause);
+        newExplosion.getWorld().triggerExplosion(newExplosion);
 
         //Remove the creeper (as the default event is canceled);
         ((Creeper) event.getCause().root()).remove();
@@ -166,15 +163,12 @@ public class Treepers {
         Vector3i pos = new Vector3i(x, y, z);
         Vector3i below = new Vector3i(x, y - 1, z);
 
-        Cause genericCause = Cause.of(NamedCause.owner(container));
-
-
         //set Dirt block below if possible (Trees cannot be placed without)
         BlockState blockBelow = world.containsBlock(below) ? world.getBlock(below) : null;
         if (blockBelow != null) {
             BlockState blockState = BlockState.builder().blockType(BlockTypes.DIRT).build();
 
-            world.setBlock(below, blockState, genericCause);
+            world.setBlock(below, blockState);
         }
 
         //Remove Grass, redstone, etc.
@@ -185,7 +179,7 @@ public class Treepers {
 
         boolean passableBlockRemoved = false;
         if (blockPassable) {
-            world.setBlock(pos, BlockState.builder().blockType(BlockTypes.AIR).build(), BlockChangeFlag.NEIGHBOR, genericCause);
+            world.setBlock(pos, BlockState.builder().blockType(BlockTypes.AIR).build());
             passableBlockRemoved = true;
         }
 
@@ -197,7 +191,7 @@ public class Treepers {
             treePlaced = true;
         } else if (passableBlockRemoved) {
             //Reset passable Block
-            world.setBlock(pos, blockOnPosition, genericCause);
+            world.setBlock(pos, blockOnPosition);
 
         }
 
@@ -205,7 +199,7 @@ public class Treepers {
         if (blockBelow != null && !(treePlaced && (blockBelow.getType() == BlockTypes.AIR ||
                 blockBelow.getType() == BlockTypes.WATER ||
                 blockBelow.getType() == BlockTypes.FLOWING_WATER))) {
-            world.setBlock(below, blockBelow, genericCause);
+            world.setBlock(below, blockBelow);
         }
     }
 }

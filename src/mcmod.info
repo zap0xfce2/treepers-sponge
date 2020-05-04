@@ -2,7 +2,7 @@
     {
         "modid": "treepers",
         "name": "Treepers",
-        "version": "5.1.3 M0d-V1",
+        "version": "7.2.0",
         "description": "Stops Creepers from destroying blocks and plants trees instead.",
         "url": "https://github.com/zap0xfce2/treepers-sponge"
     }
